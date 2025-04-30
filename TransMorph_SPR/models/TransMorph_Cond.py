@@ -1300,7 +1300,7 @@ class TransMorphCascadeAd(nn.Module):
         x = self.up1(x, f2)
         xx = self.up2(x, f3)
         def_x = mov.clone()
-        flow_previous = 0
+        flow_previous = torch.zeros((mov.shape[0], 3, mov.shape[2], mov.shape[3], mov.shape[4])).to(mov.device)
         flows = []
 
         # flow integration
@@ -1311,7 +1311,7 @@ class TransMorphCascadeAd(nn.Module):
             xs += x
             flow = self.reg_heads[t](x)
             flows.append(flow)
-            flow_new = flow_previous + self.spatial_trans(flow, flow)
+            flow_new = flow_previous + self.spatial_trans(flow, flow_previous)
             def_x = self.spatial_trans(mov, flow_new)
             flow_previous = flow_new
         flow = flow_new
